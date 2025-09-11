@@ -29,7 +29,7 @@ public class AdminTagController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Tag>>> GetAllTags()
     {
-        var tags = await _tagService.GetAllTagsAsync();
+        var tags = await _tagService.GetTagsWithPostCountAsync();
         return Ok(tags);
     }
 
@@ -62,17 +62,10 @@ public class AdminTagController : ControllerBase
             return BadRequest("Tag name is required.");
         }
 
-        try
-        {
-            tag.Name = tag.Name.Trim();
+        tag.Name = tag.Name.Trim();
 
-            var createdTag = await _tagService.CreateTagAsync(tag);
-            return CreatedAtAction(nameof(GetTagById), new { id = createdTag.Id }, createdTag);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var createdTag = await _tagService.CreateTagAsync(tag);
+        return CreatedAtAction(nameof(GetTagById), new { id = createdTag.Id }, createdTag);
     }
 
     /// <summary>
@@ -89,24 +82,17 @@ public class AdminTagController : ControllerBase
             return BadRequest("Tag name is required.");
         }
 
-        try
+        var existingTag = await _tagService.GetTagByIdAsync(id);
+        if (existingTag == null)
         {
-            var existingTag = await _tagService.GetTagByIdAsync(id);
-            if (existingTag == null)
-            {
-                return NotFound();
-            }
-
-            tag.Id = id; // Ensure the ID matches the route
-            tag.Name = tag.Name.Trim();
-
-            var updatedTag = await _tagService.UpdateTagAsync(tag);
-            return Ok(updatedTag);
+            return NotFound();
         }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        tag.Id = id; // Ensure the ID matches the route
+        tag.Name = tag.Name.Trim();
+
+        var updatedTag = await _tagService.UpdateTagAsync(tag);
+        return Ok(updatedTag);
     }
 
     /// <summary>
@@ -126,4 +112,4 @@ public class AdminTagController : ControllerBase
         await _tagService.DeleteTagAsync(id);
         return NoContent();
     }
-} 
+}

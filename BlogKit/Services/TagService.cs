@@ -25,13 +25,15 @@ public class TagService
     /// <param name="page">Page number (1-based)</param>
     /// <param name="pageSize">Number of items per page</param>
     /// <param name="searchTerm">Search term for name or description</param>
+    /// <param name="isActive">Filter by active status</param>
     /// <returns>Paginated list of tags</returns>
     public async Task<PaginatedResult<Tag>> GetTagsPaginatedAsync(
         int page = 1,
         int pageSize = 10,
-        string? searchTerm = null)
+        string? searchTerm = null,
+        bool? isActive = null)
     {
-        return await _tagRepository.GetTagsPaginatedAsync(page, pageSize, searchTerm);
+        return await _tagRepository.GetTagsPaginatedAsync(page, pageSize, searchTerm, isActive);
     }
 
     /// <summary>
@@ -192,4 +194,4 @@ public class TagService
 
         return await _tagRepository.RemoveTagsFromPostAsync(postId, tagIds);
     }
-} 
+}

@@ -32,6 +32,7 @@ public class BlogController : ControllerBase
     /// <param name="author">Filter by author</param>
     /// <param name="tag">Filter by tag</param>
     /// <param name="searchTerm">Search term for title and content</param>
+    /// <param name="isFeatured">Filter by featured status</param>
     /// <param name="sortBy">Sort field</param>
     /// <param name="sortOrder">Sort order (asc/desc)</param>
     /// <returns>Paginated list of blog summaries</returns>
@@ -42,44 +43,37 @@ public class BlogController : ControllerBase
         [FromQuery] string? author = null,
         [FromQuery] string? tag = null,
         [FromQuery] string? searchTerm = null,
+        [FromQuery] bool isFeatured = false,
         [FromQuery] string sortBy = "CreatedAt",
         [FromQuery] string sortOrder = "desc")
     {
-        try
+        var posts = await _blogService.GetPostsAsync(
+            page, pageSize, author, tag, searchTerm, isFeatured, sortBy, sortOrder);
+        
+        // Convert to summaries
+        var summaries = new List<BlogSummary>();
+        foreach (var p in posts.Items)
         {
-            var posts = await _blogService.GetPostsAsync(
-                page, pageSize, author, tag, searchTerm, sortBy, sortOrder);
-            
-            // Convert to summaries
-            var summaries = new List<BlogSummary>();
-            foreach (var p in posts.Items)
+            summaries.Add(new BlogSummary
             {
-                summaries.Add(new BlogSummary
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Tags = p.Tags,
-                    Author = p.Author,
-                    IsFeatured = p.IsFeatured,
-                    PublishDate = p.CreatedAt
-                });
-            }
-
-            var result = new PaginatedResult<BlogSummary>
-            {
-                Items = summaries,
-                TotalCount = posts.TotalCount,
-                Page = posts.Page,
-                PageSize = posts.PageSize
-            };
-
-            return Ok(result);
+                Id = p.Id,
+                Title = p.Title,
+                Tags = p.Tags,
+                Author = p.Author,
+                IsFeatured = p.IsFeatured,
+                PublishDate = p.CreatedAt
+            });
         }
-        catch (Exception ex)
+
+        var result = new PaginatedResult<BlogSummary>
         {
-            _logger.LogError(ex, "Error getting blog posts");
-            return StatusCode(500, "Internal server error");
-        }
+            Items = summaries,
+            TotalCount = posts.TotalCount,
+            Page = posts.Page,
+            PageSize = posts.PageSize
+        };
+
+        return Ok(result);
     }
 
     /// <summary>
@@ -90,21 +84,13 @@ public class BlogController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<BlogPost>> GetPostById(string id)
     {
-        try
+        var post = await _blogService.GetPostByIdAsync(id);
+        if (post == null)
         {
-            var post = await _blogService.GetPostByIdAsync(id);
-            if (post == null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            return Ok(post);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting blog post with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(post);
     }
 
     /// <summary>
@@ -115,29 +101,21 @@ public class BlogController : ControllerBase
     [HttpGet("featured")]
     public async Task<ActionResult<List<BlogSummary>>> GetFeaturedPosts([FromQuery] int limit = 5)
     {
-        try
+        var posts = await _blogService.GetFeaturedPostsAsync(limit);
+        var summaries = new List<BlogSummary>();
+        foreach (var p in posts)
         {
-            var posts = await _blogService.GetFeaturedPostsAsync(limit);
-            var summaries = new List<BlogSummary>();
-            foreach (var p in posts)
+            summaries.Add(new BlogSummary
             {
-                summaries.Add(new BlogSummary
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Tags = p.Tags,
-                    Author = p.Author,
-                    IsFeatured = p.IsFeatured,
-                    PublishDate = p.CreatedAt
-                });
-            }
-            return Ok(summaries);
+                Id = p.Id,
+                Title = p.Title,
+                Tags = p.Tags,
+                Author = p.Author,
+                IsFeatured = p.IsFeatured,
+                PublishDate = p.CreatedAt
+            });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting featured posts");
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(summaries);
     }
 
     /// <summary>
@@ -148,28 +126,20 @@ public class BlogController : ControllerBase
     [HttpGet("recent")]
     public async Task<ActionResult<List<BlogSummary>>> GetRecentPosts([FromQuery] int limit = 5)
     {
-        try
+        var posts = await _blogService.GetRecentPostsAsync(limit);
+        var summaries = new List<BlogSummary>();
+        foreach (var p in posts)
         {
-            var posts = await _blogService.GetRecentPostsAsync(limit);
-            var summaries = new List<BlogSummary>();
-            foreach (var p in posts)
+            summaries.Add(new BlogSummary
             {
-                summaries.Add(new BlogSummary
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Tags = p.Tags,
-                    Author = p.Author,
-                    IsFeatured = p.IsFeatured,
-                    PublishDate = p.CreatedAt
-                });
-            }
-            return Ok(summaries);
+                Id = p.Id,
+                Title = p.Title,
+                Tags = p.Tags,
+                Author = p.Author,
+                IsFeatured = p.IsFeatured,
+                PublishDate = p.CreatedAt
+            });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting recent posts");
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(summaries);
     }
-} 
+}

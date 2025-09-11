@@ -29,23 +29,15 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
     {
-        try
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-            var response = await _authService.AuthenticateAsync(request);
-            
-            if (response == null)
-                return Unauthorized("Invalid username or password");
+        var response = await _authService.AuthenticateAsync(request);
+        
+        if (response == null)
+            return Unauthorized("Invalid username or password");
 
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error during login for user: {Username}", request.Username);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(response);
     }
 
     /// <summary>
@@ -55,20 +47,12 @@ public class AuthController : ControllerBase
     [HttpGet("admin-check")]
     public async Task<ActionResult<bool>> CheckAdminStatus()
     {
-        try
-        {
-            var username = User.Identity?.Name;
-            
-            if (string.IsNullOrEmpty(username))
-                return Unauthorized("User not authenticated");
+        var username = User.Identity?.Name;
+        
+        if (string.IsNullOrEmpty(username))
+            return Unauthorized("User not authenticated");
 
-            var isAdmin = await _authService.IsAdminAsync(username);
-            return Ok(isAdmin);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error checking admin status");
-            return StatusCode(500, "Internal server error");
-        }
+        var isAdmin = await _authService.IsAdminAsync(username);
+        return Ok(isAdmin);
     }
 } 

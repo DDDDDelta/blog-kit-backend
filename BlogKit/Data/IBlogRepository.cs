@@ -15,13 +15,6 @@ public interface IBlogRepository
     Task<BlogPost?> GetByIdAsync(string id);
 
     /// <summary>
-    /// Get a blog post by its slug
-    /// </summary>
-    /// <param name="slug">The blog post slug</param>
-    /// <returns>The blog post or null if not found</returns>
-    Task<BlogPost?> GetBySlugAsync(string slug);
-
-    /// <summary>
     /// Get all blog posts with optional filtering
     /// </summary>
     /// <param name="page">Page number (1-based)</param>
@@ -29,6 +22,7 @@ public interface IBlogRepository
     /// <param name="author">Filter by author</param>
     /// <param name="tag">Filter by tag</param>
     /// <param name="searchTerm">Search term for title and content</param>
+    /// <param name="isFeatured">Filter by featured status</param>
     /// <param name="sortBy">Sort field</param>
     /// <param name="sortOrder">Sort order (asc/desc)</param>
     /// <returns>Paginated list of blog posts</returns>
@@ -64,15 +58,6 @@ public interface IBlogRepository
     /// <param name="pageSize">Page size</param>
     /// <returns>Paginated list of blog posts by author</returns>
     Task<PaginatedResult<BlogPost>> GetPostsByAuthorAsync(string author, int page = 1, int pageSize = 10);
-
-    /// <summary>
-    /// Get blog posts by tag
-    /// </summary>
-    /// <param name="tagSlug">Tag slug</param>
-    /// <param name="page">Page number</param>
-    /// <param name="pageSize">Page size</param>
-    /// <returns>Paginated list of blog posts by tag</returns>
-    Task<PaginatedResult<BlogPost>> GetPostsByTagAsync(string tagId, int page = 1, int pageSize = 10);
 
     /// <summary>
     /// Search blog posts
@@ -111,5 +96,3 @@ public interface IBlogRepository
     /// <returns>True if updated successfully</returns>
     Task<bool> IncrementViewCountAsync(string id);
 }
-
- 

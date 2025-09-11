@@ -32,16 +32,8 @@ public class TagController : ControllerBase
     public async Task<ActionResult<List<Tag>>> GetTags(
         [FromQuery] bool isActive = true, [FromQuery] bool includePostCount = true)
     {
-        try
-        {
-            var tags = await _tagRepository.GetTagsAsync(isActive, includePostCount);
-            return Ok(tags);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tags");
-            return StatusCode(500, "Internal server error");
-        }
+        var tags = await _tagRepository.GetTagsWithPostCountAsync();
+        return Ok(tags);
     }
 
     /// <summary>
@@ -49,26 +41,18 @@ public class TagController : ControllerBase
     /// </summary>
     /// <param name="page">Page number</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="isActive">Filter by active status</param>
     /// <param name="searchTerm">Search term</param>
+    /// <param name="isActive">Filter by active status</param>
     /// <returns>Paginated list of tags</returns>
     [HttpGet("paginated")]
     public async Task<ActionResult<PaginatedResult<Tag>>> GetTagsPaginated(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] bool? isActive = null,
-        [FromQuery] string? searchTerm = null)
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] bool? isActive = null)
     {
-        try
-        {
-            var result = await _tagRepository.GetTagsPaginatedAsync(page, pageSize, isActive, searchTerm);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting paginated tags");
-            return StatusCode(500, "Internal server error");
-        }
+        var result = await _tagRepository.GetTagsPaginatedAsync(page, pageSize, searchTerm, isActive);
+        return Ok(result);
     }
 
     /// <summary>
@@ -79,19 +63,11 @@ public class TagController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Tag>> GetTag(string id)
     {
-        try
-        {
-            var tag = await _tagRepository.GetByIdAsync(id);
-            if (tag == null)
-                return NotFound();
+        var tag = await _tagRepository.GetByIdAsync(id);
+        if (tag == null)
+            return NotFound();
 
-            return Ok(tag);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tag with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(tag);
     }
 
     /// <summary>
@@ -127,7 +103,7 @@ public class TagController : ControllerBase
     {
         try
         {
-            var tags = await _tagRepository.GetPopularTagsAsync(limit);
+            var tags = await _tagRepository.GetTagsWithPostCountAsync();
             return Ok(tags);
         }
         catch (Exception ex)
@@ -269,4 +245,4 @@ public class TagController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-} 
+}

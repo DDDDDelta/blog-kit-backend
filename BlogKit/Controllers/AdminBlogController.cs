@@ -16,13 +16,11 @@ namespace BlogKit.Controllers;
 public class AdminBlogController : ControllerBase
 {
     private readonly BlogService _blogService;
-    private readonly ITagRepository _tagRepository;
     private readonly ILogger<AdminBlogController> _logger;
 
-    public AdminBlogController(BlogService blogService, ITagRepository tagRepository, ILogger<AdminBlogController> logger)
+    public AdminBlogController(BlogService blogService, ILogger<AdminBlogController> logger)
     {
         _blogService = blogService;
-        _tagRepository = tagRepository;
         _logger = logger;
     }
 
@@ -35,19 +33,11 @@ public class AdminBlogController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<BlogPost>> GetPost(string id, [FromQuery] bool incrementViewCount = false)
     {
-        try
-        {
-            var post = await _blogService.GetPostByIdAsync(id, incrementViewCount);
-            if (post == null)
-                return NotFound();
+        var post = await _blogService.GetPostByIdAsync(id, incrementViewCount);
+        if (post == null)
+            return NotFound();
 
-            return Ok(post);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting blog post with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(post);
     }
 
     /// <summary>
@@ -58,19 +48,11 @@ public class AdminBlogController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BlogPost>> CreatePost([FromBody] BlogPost post)
     {
-        try
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-            var createdPost = await _blogService.CreatePostAsync(post);
-            return CreatedAtAction(nameof(GetPost), new { id = createdPost.Id }, createdPost);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating blog post");
-            return StatusCode(500, "Internal server error");
-        }
+        var createdPost = await _blogService.CreatePostAsync(post);
+        return CreatedAtAction(nameof(GetPost), new { id = createdPost.Id }, createdPost);
     }
 
     /// <summary>
@@ -82,25 +64,17 @@ public class AdminBlogController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<BlogPost>> UpdatePost(string id, [FromBody] BlogPost post)
     {
-        try
-        {
-            if (id != post.Id)
-                return BadRequest("ID mismatch");
+        if (id != post.Id)
+            return BadRequest("ID mismatch");
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-            var updatedPost = await _blogService.UpdatePostAsync(post);
-            if (updatedPost == null)
-                return NotFound();
+        var updatedPost = await _blogService.UpdatePostAsync(post);
+        if (updatedPost == null)
+            return NotFound();
 
-            return Ok(updatedPost);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating blog post with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(updatedPost);
     }
 
     /// <summary>
@@ -111,19 +85,11 @@ public class AdminBlogController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeletePost(string id)
     {
-        try
-        {
-            var deleted = await _blogService.DeletePostAsync(id);
-            if (!deleted)
-                return NotFound();
+        var deleted = await _blogService.DeletePostAsync(id);
+        if (!deleted)
+            return NotFound();
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting blog post with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return NoContent();
     }
 
     /// <summary>
@@ -135,65 +101,10 @@ public class AdminBlogController : ControllerBase
     [HttpPost("{id}/feature")]
     public async Task<ActionResult> SetFeatured(string id, [FromBody] bool isFeatured)
     {
-        try
-        {
-            var updated = await _blogService.SetFeaturedAsync(id, isFeatured);
-            if (!updated)
-                return NotFound();
+        var updated = await _blogService.SetFeaturedAsync(id, isFeatured);
+        if (!updated)
+            return NotFound();
 
-            return Ok(new { message = $"Post {(isFeatured ? "featured" : "unfeatured")} successfully" });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error setting featured status for post with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(new { message = $"Post {(isFeatured ? "featured" : "unfeatured")} successfully" });
     }
-
-    /// <summary>
-    /// Generate a unique slug for a blog post (admin only)
-    /// </summary>
-    /// <param name="title">The post title</param>
-    /// <param name="excludeId">ID to exclude from check (for updates)</param>
-    /// <returns>A unique slug</returns>
-    [HttpGet("generate-slug")]
-    public async Task<ActionResult<string>> GenerateSlug([FromQuery] string title, [FromQuery] string? excludeId = null)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(title))
-                return BadRequest("Title is required");
-
-            var slug = await _blogService.GenerateSlugAsync(title, excludeId);
-            return Ok(slug);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating slug for title: {Title}", title);
-            return StatusCode(500, "Internal server error");
-        }
-    }
-
-    /// <summary>
-    /// Calculate reading time for content (admin only)
-    /// </summary>
-    /// <param name="content">The content to analyze</param>
-    /// <returns>Reading time in minutes</returns>
-    [HttpPost("reading-time")]
-    public ActionResult<int> CalculateReadingTime([FromBody] string content)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(content))
-                return BadRequest("Content is required");
-
-            var readingTime = _blogService.CalculateReadingTime(content);
-            return Ok(readingTime);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error calculating reading time");
-            return StatusCode(500, "Internal server error");
-        }
-    }
-} 
+}

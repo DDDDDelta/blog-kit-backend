@@ -27,11 +27,13 @@ public interface ITagRepository
     /// <param name="page">Page number (1-based)</param>
     /// <param name="pageSize">Number of items per page</param>
     /// <param name="searchTerm">Search term for name or description</param>
+    /// <param name="isActive">Filter by active status</param>
     /// <returns>Paginated list of tags</returns>
     Task<PaginatedResult<Tag>> GetTagsPaginatedAsync(
         int page = 1,
         int pageSize = 10,
-        string? searchTerm = null);
+        string? searchTerm = null,
+        bool? isActive = null);
 
     /// <summary>
     /// Create a new tag
@@ -66,9 +68,8 @@ public interface ITagRepository
     /// Check if tag id exists
     /// </summary>
     /// <param name="id">The ID to check</param>
-    /// <param name="excludeId">ID to exclude from check (for updates)</param>
     /// <returns>True if ID exists</returns>
-    Task<bool> IdExistsAsync(string id, string? excludeId = null);
+    Task<bool> IdExistsAsync(string id);
 
     /// <summary>
     /// Get tags with post count
@@ -106,5 +107,3 @@ public interface ITagRepository
     /// <returns>True if removed successfully</returns>
     Task<bool> RemoveTagsFromPostAsync(string postId, List<string> tagIds);
 }
-
- 

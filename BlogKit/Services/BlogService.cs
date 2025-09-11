@@ -35,24 +35,6 @@ public class BlogService
     }
 
     /// <summary>
-    /// Get a blog post by its slug
-    /// </summary>
-    /// <param name="slug">The blog post slug</param>
-    /// <param name="incrementViewCount">Whether to increment the view count</param>
-    /// <returns>The blog post or null if not found</returns>
-    public async Task<BlogPost?> GetPostBySlugAsync(string slug, bool incrementViewCount = false)
-    {
-        var post = await _blogRepository.GetBySlugAsync(slug);
-        
-        if (post != null && incrementViewCount)
-        {
-            await _blogRepository.IncrementViewCountAsync(post.Id);
-        }
-        
-        return post;
-    }
-
-    /// <summary>
     /// Get all blog posts with optional filtering
     /// </summary>
     /// <param name="page">Page number (1-based)</param>
@@ -60,6 +42,7 @@ public class BlogService
     /// <param name="author">Filter by author</param>
     /// <param name="tag">Filter by tag</param>
     /// <param name="searchTerm">Search term for title and content</param>
+    /// <param name="isFeatured">Filter by featured status</param>
     /// <param name="sortBy">Sort field</param>
     /// <param name="sortOrder">Sort order (asc/desc)</param>
     /// <returns>Paginated list of blog posts</returns>
@@ -107,18 +90,6 @@ public class BlogService
     public async Task<PaginatedResult<BlogPost>> GetPostsByAuthorAsync(string author, int page = 1, int pageSize = 10)
     {
         return await _blogRepository.GetPostsByAuthorAsync(author, page, pageSize);
-    }
-
-    /// <summary>
-    /// Get blog posts by tag
-    /// </summary>
-    /// <param name="tagSlug">Tag slug</param>
-    /// <param name="page">Page number</param>
-    /// <param name="pageSize">Page size</param>
-    /// <returns>Paginated list of blog posts by tag</returns>
-    public async Task<PaginatedResult<BlogPost>> GetPostsByTagAsync(string tagId, int page = 1, int pageSize = 10)
-    {
-        return await _blogRepository.GetPostsByTagAsync(tagId, page, pageSize);
     }
 
     /// <summary>
@@ -192,4 +163,4 @@ public class BlogService
         await _blogRepository.UpdatePostAsync(post);
         return true;
     }
-} 
+}
