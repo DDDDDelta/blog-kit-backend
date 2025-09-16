@@ -1,0 +1,8 @@
+/home/dddelta/projects/iota/blog-kit-backend/Tests/bin/Debug/net8.0/CoverletSourceRootsMapping_BlogKit.Tests
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/BlogKit.Tests.csproj.AssemblyReference.cache
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/MvcTestingAppManifest.json
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/BlogKit.Tests.GeneratedMSBuildEditorConfig.editorconfig
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/BlogKit.Tests.AssemblyInfoInputs.cache
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/BlogKit.Tests.AssemblyInfo.cs
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/BlogKit.Tests.csproj.CoreCompileInputs.cache
+/home/dddelta/projects/iota/blog-kit-backend/Tests/obj/Debug/net8.0/BlogKit.Tests.sourcelink.json

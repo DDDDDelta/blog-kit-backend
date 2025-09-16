@@ -11,18 +11,9 @@ namespace BlogKit.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/blog")]
-public class BlogController : ControllerBase
+public class BlogController(BlogService blogService) : ControllerBase
 {
-    private readonly BlogService _blogService;
-    private readonly ITagRepository _tagRepository;
-    private readonly ILogger<BlogController> _logger;
-
-    public BlogController(BlogService blogService, ITagRepository tagRepository, ILogger<BlogController> logger)
-    {
-        _blogService = blogService;
-        _tagRepository = tagRepository;
-        _logger = logger;
-    }
+    private readonly BlogService _blogService = blogService;
 
     /// <summary>
     /// Get all blog summaries with optional filtering

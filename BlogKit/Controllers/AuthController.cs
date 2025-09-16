@@ -10,16 +10,9 @@ namespace BlogKit.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-    private readonly ILogger<AuthController> _logger;
-
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
-    {
-        _authService = authService;
-        _logger = logger;
-    }
+    private readonly IAuthService _authService = authService;
 
     /// <summary>
     /// Authenticate a user and get JWT token
@@ -38,7 +31,7 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid username or password");
 
         return Ok(response);
-    }
+    }   
 
     /// <summary>
     /// Validate if current user is admin

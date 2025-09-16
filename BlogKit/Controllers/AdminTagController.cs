@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using BlogKit.Services;
 using BlogKit.Models;
-using Microsoft.Extensions.Logging;
-using BlogKit.Data;
 
 namespace BlogKit.Controllers;
 
@@ -13,14 +11,9 @@ namespace BlogKit.Controllers;
 [ApiController]
 [Route("api/admin/tags")]
 [Authorize(Roles = "Admin")]
-public class AdminTagController : ControllerBase
+public class AdminTagController(TagService tagService) : ControllerBase
 {
-    private readonly TagService _tagService;
-
-    public AdminTagController(TagService tagService)
-    {
-        _tagService = tagService;
-    }
+    private readonly TagService _tagService = tagService;
 
     /// <summary>
     /// Get all tags (admin only)

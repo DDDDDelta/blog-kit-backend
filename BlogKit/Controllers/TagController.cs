@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using BlogKit.Services;
 using BlogKit.Models;
 using BlogKit.Data;
-using Microsoft.Extensions.Logging;
 
 namespace BlogKit.Controllers;
 
@@ -11,16 +10,9 @@ namespace BlogKit.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/tag")]
-public class TagController : ControllerBase
+public class TagController(ITagRepository tagRepository) : ControllerBase
 {
-    private readonly ITagRepository _tagRepository;
-    private readonly ILogger<TagController> _logger;
-
-    public TagController(ITagRepository tagRepository, ILogger<TagController> logger)
-    {
-        _tagRepository = tagRepository;
-        _logger = logger;
-    }
+    private readonly ITagRepository _tagRepository = tagRepository;
 
     /// <summary>
     /// Get all tags
@@ -78,19 +70,11 @@ public class TagController : ControllerBase
     [HttpGet("name/{name}")]
     public async Task<ActionResult<Tag>> GetTagByName(string name)
     {
-        try
-        {
-            var tag = await _tagRepository.GetByNameAsync(name);
-            if (tag == null)
-                return NotFound();
+        var tag = await _tagRepository.GetByNameAsync(name);
+        if (tag == null)
+            return NotFound();
 
-            return Ok(tag);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tag with name: {Name}", name);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(tag);
     }
 
     /// <summary>
@@ -101,16 +85,8 @@ public class TagController : ControllerBase
     [HttpGet("popular")]
     public async Task<ActionResult<List<Tag>>> GetPopularTags([FromQuery] int limit = 10)
     {
-        try
-        {
-            var tags = await _tagRepository.GetTagsWithPostCountAsync();
-            return Ok(tags);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting popular tags");
-            return StatusCode(500, "Internal server error");
-        }
+        var tags = await _tagRepository.GetTagsWithPostCountAsync();
+        return Ok(tags);
     }
 
     /// <summary>
@@ -121,19 +97,11 @@ public class TagController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Tag>> CreateTag([FromBody] Tag tag)
     {
-        try
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-            var createdTag = await _tagRepository.CreateTagAsync(tag);
-            return CreatedAtAction(nameof(GetTag), new { id = createdTag.Id }, createdTag);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creating tag");
-            return StatusCode(500, "Internal server error");
-        }
+        var createdTag = await _tagRepository.CreateTagAsync(tag);
+        return CreatedAtAction(nameof(GetTag), new { id = createdTag.Id }, createdTag);
     }
 
     /// <summary>
@@ -145,22 +113,14 @@ public class TagController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult<Tag>> UpdateTag(string id, [FromBody] Tag tag)
     {
-        try
-        {
-            if (id != tag.Id)
-                return BadRequest("ID mismatch");
+        if (id != tag.Id)
+            return BadRequest("ID mismatch");
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-            var updatedTag = await _tagRepository.UpdateTagAsync(tag);
-            return Ok(updatedTag);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating tag with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        var updatedTag = await _tagRepository.UpdateTagAsync(tag);
+        return Ok(updatedTag);
     }
 
     /// <summary>
@@ -171,19 +131,11 @@ public class TagController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteTag(string id)
     {
-        try
-        {
-            var deleted = await _tagRepository.DeleteTagAsync(id);
-            if (!deleted)
-                return NotFound();
+        var deleted = await _tagRepository.DeleteTagAsync(id);
+        if (!deleted)
+            return NotFound();
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting tag with ID: {Id}", id);
-            return StatusCode(500, "Internal server error");
-        }
+        return NoContent();
     }
 
     /// <summary>
@@ -193,16 +145,8 @@ public class TagController : ControllerBase
     [HttpGet("with-post-count")]
     public async Task<ActionResult<List<Tag>>> GetTagsWithPostCount()
     {
-        try
-        {
-            var tags = await _tagRepository.GetTagsWithPostCountAsync();
-            return Ok(tags);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tags with post count");
-            return StatusCode(500, "Internal server error");
-        }
+        var tags = await _tagRepository.GetTagsWithPostCountAsync();
+        return Ok(tags);
     }
 
     /// <summary>
@@ -213,16 +157,8 @@ public class TagController : ControllerBase
     [HttpGet("post/{postId}")]
     public async Task<ActionResult<List<Tag>>> GetTagsByPost(string postId)
     {
-        try
-        {
-            var tags = await _tagRepository.GetTagsByPostAsync(postId);
-            return Ok(tags);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tags for post: {PostId}", postId);
-            return StatusCode(500, "Internal server error");
-        }
+        var tags = await _tagRepository.GetTagsByPostAsync(postId);
+        return Ok(tags);
     }
 
     /// <summary>
@@ -234,15 +170,7 @@ public class TagController : ControllerBase
     [HttpGet("check-name")]
     public async Task<ActionResult<bool>> CheckNameExists([FromQuery] string name, [FromQuery] string? excludeId = null)
     {
-        try
-        {
-            var exists = await _tagRepository.NameExistsAsync(name, excludeId);
-            return Ok(exists);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error checking name existence: {Name}", name);
-            return StatusCode(500, "Internal server error");
-        }
+        var exists = await _tagRepository.NameExistsAsync(name, excludeId);
+        return Ok(exists);
     }
 }

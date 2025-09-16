@@ -13,16 +13,12 @@ namespace BlogKit.Controllers;
 [ApiController]
 [Route("api/admin/blog")]
 [Authorize(Roles = "Admin")]
-public class AdminBlogController : ControllerBase
+public class AdminBlogController(
+    BlogService blogService, 
+    ILogger<AdminBlogController> logger) : ControllerBase
 {
-    private readonly BlogService _blogService;
-    private readonly ILogger<AdminBlogController> _logger;
-
-    public AdminBlogController(BlogService blogService, ILogger<AdminBlogController> logger)
-    {
-        _blogService = blogService;
-        _logger = logger;
-    }
+    private readonly BlogService _blogService = blogService;
+    private readonly ILogger<AdminBlogController> _logger = logger;
 
     /// <summary>
     /// Get a blog post by ID (admin only)
